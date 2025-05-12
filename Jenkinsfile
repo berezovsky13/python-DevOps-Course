@@ -17,7 +17,12 @@ pipeline {
                         -w /usr/src \
                         -e SONAR_TOKEN="${SONAR_TOKEN}" \
                         -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
-                        sonarsource/sonar-scanner-cli:latest
+                        -e SONAR_PROJECT_KEY="berezovsky13_python" \
+                        sonarsource/sonar-scanner-cli:latest \
+                        -Dsonar.projectKey=berezovsky13_python \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
                     '''
                 }
             }
