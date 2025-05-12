@@ -1,34 +1,33 @@
-pipeline {
+pipeline{
     agent any
-
-    environment {
-        SONAR_HOST_URL = 'http://sonarqube:9000'    // Using the actual container name
-        SONAR_PROJECT_KEY = 'demo'
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/berezovsky13/python.git'
+    stages{
+        stage("Checkout Code"){
+            steps{
+                git branch: 'main', url:'https://github.com/berezovsky13/python-DevOps-Course.git'
+            }
+        }
+        
+        stage("Docker Build+Tag"){
+            steps{
+                sh 'docker build -t berezovsky8/python-demo:1.0.1 .'
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withCredentials([string(credentialsId: 'sonar', variable: 'SONAR_TOKEN')]) {
+        stage("Docker Push"){
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
                     sh '''
-                        docker run --rm \
-                          -e SONAR_TOKEN=$SONAR_TOKEN \
-                          -e SONAR_HOST_URL=$SONAR_HOST_URL \
-                          -v "$PWD:/usr/src" \
-                          -w /usr/src \
-                          sonarsource/sonar-scanner-cli:latest \
-                          -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_TOKEN
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push berezovsky8/python-demo:1.0.1
                     '''
+                    
                 }
+            }
+        }
+        
+        stage("Docker Run"){
+            steps{
+                sh 'docker run python-demo:1.0.0'
             }
         }
     }
