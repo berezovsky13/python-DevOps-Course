@@ -9,7 +9,19 @@ pipeline{
         
         stage("Docker Build+Tag"){
             steps{
-                sh 'docker build -t python-demo:1.0.1 .'
+                sh 'docker build -t berezovsky8/python-demo:1.0.1 .'
+            }
+        }
+
+        stage("Docker Push"){
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push berezovsky8/python-demo:1.0.1
+                    '''
+                    
+                }
             }
         }
         
