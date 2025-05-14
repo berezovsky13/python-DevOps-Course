@@ -1,3 +1,4 @@
+
 pipeline{
     agent any
     stages{
@@ -9,7 +10,13 @@ pipeline{
         
         stage("Docker Build+Tag"){
             steps{
-                sh 'docker build -t berezovsky8/python-demo:1.0.1 .'
+                sh 'docker build -t berezovsky8/python-demo:1.0.3 .'
+            }
+        }
+        
+        stage("Trivy Scan"){
+            steps{
+                sh 'trivy image berezovsky8/python-demo:1.0.3'
             }
         }
 
@@ -18,7 +25,7 @@ pipeline{
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
                     sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push berezovsky8/python-demo:1.0.1
+                        docker push berezovsky8/python-demo:1.0.3
                     '''
                     
                 }
@@ -27,7 +34,7 @@ pipeline{
         
         stage("Docker Run"){
             steps{
-                sh 'docker run python-demo:1.0.0'
+                sh 'docker run python-demo:1.0.1'
             }
         }
     }
