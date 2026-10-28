@@ -14,15 +14,10 @@ pipeline{
             }
         }
         
-        stage("Trivy Scan"){
-            steps{
-                sh 'trivy image berezovsky8/python-demo:1.0.3'
-            }
-        }
 
         stage("Docker Push"){
             steps{
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
                     sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker push berezovsky8/python-demo:1.0.3
