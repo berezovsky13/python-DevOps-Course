@@ -29,7 +29,7 @@ pipeline{
         
         stage("Docker Run"){
             steps{
-                sh 'docker run python-demo:1.0.1'
+                sh 'docker run python-demo:1.0.3'
             }
         }
     }
